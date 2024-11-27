@@ -12,7 +12,7 @@ import "react-native-reanimated";
 import { Link } from "expo-router";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -20,19 +20,19 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    Nunito: require("../assets/fonts/Nunito-VariableFont_wght.ttf"),
   });
-
-  useEffect(() => {
-    setTimeout(() => {
-      setStatusBarStyle("light");
-    }, 0);
-  }, []);
 
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
     }
+  }, [loaded]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setStatusBarStyle("light");
+    }, 0);
   }, [loaded]);
 
   if (!loaded) {
@@ -53,7 +53,6 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // padding: 20,
     backgroundColor: "#000",
   },
 });
