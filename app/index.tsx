@@ -1,5 +1,5 @@
 import { Image, StyleSheet, View, TextInput, ScrollView } from "react-native";
-
+import { Link } from "expo-router";
 import Text from "@/components/CustomText";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -59,10 +59,12 @@ export default function HomeScreen() {
               />
             </View>
             <View style={styles.imageContainer}>
-              <View style={styles.generateMoreCard}>
-                <Text style={styles.generateMoreCardText}>Generate more</Text>
-                <MaterialIcons name="arrow-forward" size={24} color="black" />
-              </View>
+              <Link href={"/feed"} style={{ height: "100%" }}>
+                <View style={styles.generateMoreCard}>
+                  <Text style={styles.generateMoreCardText}>Generate more</Text>
+                  <MaterialIcons name="arrow-forward" size={24} color="black" />
+                </View>
+              </Link>
             </View>
           </View>
         </View>
