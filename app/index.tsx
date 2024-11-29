@@ -1,4 +1,11 @@
-import { Image, StyleSheet, View, TextInput, ScrollView } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  View,
+  TextInput,
+  ScrollView,
+  SafeAreaView,
+} from "react-native";
 import { Link } from "expo-router";
 import Text from "@/components/CustomText";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -50,6 +57,14 @@ export default function HomeScreen() {
               />
             </View>
           </View>
+          <View style={{ flex: 1 }}>
+            <Link href={"/feed"} style={{ flex: 1 }}>
+              <View style={styles.generateMoreCard}>
+                <Text style={styles.generateMoreCardText}>Explore</Text>
+                <MaterialIcons name="arrow-forward" size={24} color="black" />
+              </View>
+            </Link>
+          </View>
           <View style={styles.hompageImageSubContainer}>
             <View style={styles.imageContainer}>
               <Image
@@ -61,7 +76,9 @@ export default function HomeScreen() {
             <View style={styles.imageContainer}>
               <Link href={"/feed"} style={{ height: "100%" }}>
                 <View style={styles.generateMoreCard}>
-                  <Text style={styles.generateMoreCardText}>Generate more</Text>
+                  <Text style={styles.generateMoreCardText}>
+                    Scroll to generate
+                  </Text>
                   <MaterialIcons name="arrow-forward" size={24} color="black" />
                 </View>
               </Link>
