@@ -10,7 +10,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import Text from "./CustomText";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fal } from "@fal-ai/client";
 
 interface ImageGeneratedProps {
   toggle: boolean;
@@ -27,13 +28,14 @@ export default function ImageGenerated({
   modalVisible,
   setModalVisible,
 }: ImageGeneratedProps) {
+  useEffect(() => {}, []);
+
   return (
     <View
       style={{
         height,
         paddingVertical: toggle ? 35 : 0,
         paddingHorizontal: toggle ? 15 : 0,
-        // marginBottom: 50,
       }}
     >
       <Modal
@@ -52,18 +54,36 @@ export default function ImageGenerated({
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.textInput}
+                // onChangeText={(value) => handleCustomerSearch(value)}
                 placeholder="prompt to generate an image"
               />
-              <View style={{ position: "absolute", right: 10, bottom: "20%" }}>
-                <TouchableOpacity onPress={() => {}}>
-                  <MaterialIcons name="token" size={24} color="black" />
-                </TouchableOpacity>
-              </View>
+
+              <TouchableOpacity
+                // onPress={() => {
+                //   y();
+                // }}
+                style={{ position: "absolute", right: 10, bottom: "20%" }}
+              >
+                <MaterialIcons name="token" size={24} color="black" />
+              </TouchableOpacity>
             </View>
           </Pressable>
         </View>
       </Modal>
 
+      {/* <Image
+        style={[
+          styles.image,
+          {
+            borderBottomLeftRadius: toggle ? 30 : 0,
+            borderBottomRightRadius: toggle ? 30 : 0,
+            borderTopRightRadius: toggle ? 30 : 0,
+            borderTopLeftRadius: toggle ? 30 : 0,
+          },
+        ]}
+        source={{ uri: imageFile }}
+        resizeMode={"cover"}
+      /> */}
       <Image
         style={[
           styles.image,
@@ -94,17 +114,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  imageContainer: {
-    flex: 1, // Fills parent container (full screen)
-    justifyContent: "center", // Center the content
-    alignItems: "center",
-    position: "relative",
-  },
   image: {
     width: "100%",
     height: "100%",
-    // borderWidth: 1,
-    // borderRadius: 30,
+    borderWidth: 1,
+    borderRadius: 30,
   },
   actionsContainer: {
     position: "absolute",

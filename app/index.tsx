@@ -5,12 +5,39 @@ import {
   TextInput,
   ScrollView,
   SafeAreaView,
+  TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { Link } from "expo-router";
 import Text from "@/components/CustomText";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useState } from "react";
 
 export default function HomeScreen() {
+  const [images, setImages] = useState<{ url: string; prompt: string }[]>([]);
+  const [prompt, setPrompt] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const generate = async (text: string) => {
+    setLoading(true);
+    fetch(`https://image.pollinations.ai/prompt/${text}`)
+      .then((res) => {
+        if (res.ok) {
+          return res.url;
+        } else {
+          throw new Error("Network response was not ok.");
+        }
+      })
+      .then((imageUrl) => {
+        setImages((prevImages) => [...prevImages, { url: imageUrl, prompt }]);
+        setPrompt("");
+      })
+      .catch((err) => console.log(err))
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.heroText}>Generate images</Text>
@@ -33,15 +60,45 @@ export default function HomeScreen() {
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.textInput}
-            // onChangeText={(value) => handleCustomerSearch(value)}
+            value={prompt}
+            onChangeText={(value) => setPrompt(value)}
             placeholder="prompt to generate an image"
           />
-          <View style={{ position: "absolute", right: 10, bottom: "20%" }}>
+          <TouchableOpacity
+            onPress={() => generate(prompt)}
+            style={{ position: "absolute", right: 10, bottom: "20%" }}
+          >
             <MaterialIcons name="token" size={24} color="black" />
-          </View>
+          </TouchableOpacity>
         </View>
         <View style={styles.hompageImageContainer}>
-          <View style={styles.hompageImageSubContainer}>
+          <View style={[styles.hompageImageSubContainer]}>
+            {loading ? (
+              <ActivityIndicator
+                size="small"
+                color="#5F5AA2"
+                style={{
+                  flex: 1,
+                  padding: 2,
+                }}
+              />
+            ) : images && images?.length > 0 ? (
+              <View style={styles.imageContainer}>
+                <Image
+                  style={styles.image}
+                  source={{ uri: images[images.length - 1]?.url }}
+                  resizeMode="cover"
+                />
+              </View>
+            ) : (
+              <View style={styles.imageContainer}>
+                <Image
+                  style={styles.image}
+                  source={require("../assets/images/image3.webp")}
+                  resizeMode="cover"
+                />
+              </View>
+            )}
             <View style={styles.imageContainer}>
               <Image
                 style={styles.image}
@@ -49,50 +106,43 @@ export default function HomeScreen() {
                 resizeMode="cover"
               />
             </View>
-            <View style={styles.imageContainer}>
-              <Image
-                style={styles.image}
-                source={require("../assets/images/image3.webp")}
-                resizeMode="cover"
-              />
-            </View>
           </View>
-          <View style={{ flex: 1 }}>
-            <Link href={"/explore"} style={{ flex: 1 }}>
-              <View
-                style={[
-                  styles.generateMoreCard,
-                  {
-                    borderTopEndRadius: 30,
-                    borderBottomEndRadius: 0,
-                    borderBottomStartRadius: 30,
-                    borderTopStartRadius: 0,
-                  },
-                ]}
-              >
+        </View>
+        <View style={{ flex: 1 }}>
+          <Link href={"/feed"} style={{ flex: 1 }}>
+            <View
+              style={[
+                styles.generateMoreCard,
+                {
+                  borderTopEndRadius: 30,
+                  borderBottomEndRadius: 0,
+                  borderBottomStartRadius: 30,
+                  borderTopStartRadius: 0,
+                },
+              ]}
+            >
+              <Text style={styles.generateMoreCardText}>
+                Scroll to generate
+              </Text>
+              <MaterialIcons name="arrow-forward" size={24} color="black" />
+            </View>
+          </Link>
+        </View>
+        <View style={[styles.hompageImageSubContainer, { marginBottom: 30 }]}>
+          <View style={styles.imageContainer}>
+            <Image
+              style={styles.image}
+              source={require("../assets/images/image1.webp")}
+              resizeMode="cover"
+            />
+          </View>
+          <View style={styles.imageContainer}>
+            <Link href={"/explore"} style={{ height: "100%" }}>
+              <View style={styles.generateMoreCard}>
                 <Text style={styles.generateMoreCardText}>Explore</Text>
                 <MaterialIcons name="arrow-forward" size={24} color="black" />
               </View>
             </Link>
-          </View>
-          <View style={[styles.hompageImageSubContainer, { marginBottom: 30 }]}>
-            <View style={styles.imageContainer}>
-              <Image
-                style={styles.image}
-                source={require("../assets/images/image1.webp")}
-                resizeMode="cover"
-              />
-            </View>
-            <View style={styles.imageContainer}>
-              <Link href={"/feed"} style={{ height: "100%" }}>
-                <View style={styles.generateMoreCard}>
-                  <Text style={styles.generateMoreCardText}>
-                    Scroll to generate
-                  </Text>
-                  <MaterialIcons name="arrow-forward" size={24} color="black" />
-                </View>
-              </Link>
-            </View>
           </View>
         </View>
       </View>
@@ -153,8 +203,8 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 8,
     fontWeight: "400",
-    paddingHorizontal: 10,
     paddingLeft: 30,
+    paddingRight: 40,
     borderWidth: 1,
     alignItems: "center",
     borderColor: "#999",
