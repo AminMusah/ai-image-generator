@@ -58,14 +58,24 @@ export default function HomeScreen() {
             </View>
           </View>
           <View style={{ flex: 1 }}>
-            <Link href={"/feed"} style={{ flex: 1 }}>
-              <View style={styles.generateMoreCard}>
+            <Link href={"/explore"} style={{ flex: 1 }}>
+              <View
+                style={[
+                  styles.generateMoreCard,
+                  {
+                    borderTopEndRadius: 30,
+                    borderBottomEndRadius: 0,
+                    borderBottomStartRadius: 30,
+                    borderTopStartRadius: 0,
+                  },
+                ]}
+              >
                 <Text style={styles.generateMoreCardText}>Explore</Text>
                 <MaterialIcons name="arrow-forward" size={24} color="black" />
               </View>
             </Link>
           </View>
-          <View style={styles.hompageImageSubContainer}>
+          <View style={[styles.hompageImageSubContainer, { marginBottom: 30 }]}>
             <View style={styles.imageContainer}>
               <Image
                 style={styles.image}
