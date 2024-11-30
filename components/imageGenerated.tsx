@@ -11,11 +11,11 @@ import {
 } from "react-native";
 import Text from "./CustomText";
 import { useEffect, useState } from "react";
-import { fal } from "@fal-ai/client";
+import { useData } from "@/hooks/useData";
 
 interface ImageGeneratedProps {
   toggle: boolean;
-  image: { id: number; url: string; description: string };
+  image: { id: any; url: string; prompt: string };
   height: any;
   modalVisible: boolean;
   setModalVisible: (visible: boolean) => void;
@@ -28,8 +28,7 @@ export default function ImageGenerated({
   modalVisible,
   setModalVisible,
 }: ImageGeneratedProps) {
-  useEffect(() => {}, []);
-
+  console.log(image, "image");
   return (
     <View
       style={{
@@ -102,7 +101,7 @@ export default function ImageGenerated({
         <Feather name="heart" size={34} color="white" />
       </View>
       <Text style={{ color: "#fff", fontWeight: 900, marginTop: 10 }}>
-        {image.description}
+        {image.prompt}
       </Text>
     </View>
   );

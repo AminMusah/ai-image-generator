@@ -11,11 +11,16 @@ import { Stack, useNavigation } from "expo-router";
 import { Entypo, Feather, Foundation, MaterialIcons } from "@expo/vector-icons";
 import { FlatList } from "react-native";
 import ImageGenerated from "@/components/imageGenerated";
+import { useData } from "@/hooks/useData";
 
 export default function explore() {
   const { height } = useWindowDimensions();
   const [toggle, setToggle] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+
+  const { data } = useData();
+
+  console.log(data, "data");
 
   const images = [
     {
@@ -65,7 +70,7 @@ export default function explore() {
       </View> */}
 
       <FlatList
-        data={images}
+        data={data}
         renderItem={({ item }) => (
           <ImageGenerated
             image={item}

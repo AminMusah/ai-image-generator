@@ -12,11 +12,15 @@ import { Link } from "expo-router";
 import Text from "@/components/CustomText";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
+import { useData } from "@/hooks/useData";
 
 export default function HomeScreen() {
   const [images, setImages] = useState<{ url: string; prompt: string }[]>([]);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
+  const { addImages } = useData();
+
+  // onClick={() => onOpen("editCategory", { category })}
 
   const generate = async (text: string) => {
     setLoading(true);
@@ -29,7 +33,9 @@ export default function HomeScreen() {
         }
       })
       .then((imageUrl) => {
-        setImages((prevImages) => [...prevImages, { url: imageUrl, prompt }]);
+        const newImage = { id: Date.now(), url: imageUrl, prompt };
+        setImages((prevImages) => [...prevImages, newImage]);
+        addImages("addImages", [newImage]);
         setPrompt("");
       })
       .catch((err) => console.log(err))
