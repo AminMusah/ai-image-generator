@@ -5,6 +5,10 @@ import {
   Image,
   useWindowDimensions,
   TouchableOpacity,
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  TextInput,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Stack, useNavigation } from "expo-router";
@@ -12,38 +16,39 @@ import { Entypo, Feather, Foundation, MaterialIcons } from "@expo/vector-icons";
 import { FlatList } from "react-native";
 import ImageGenerated from "@/components/imageGenerated";
 import { useData } from "@/hooks/useData";
+import { useGenerate } from "@/hooks/useGenerate";
 
 export default function feed() {
   const { height } = useWindowDimensions();
-  const [toggle, setToggle] = useState(false);
+  const [toggle, setToggle] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const { data } = useData();
+  const { loading, setPrompt, prompt, generate } = useGenerate();
 
-  console.log(data, "data");
-  // onClick={() => onOpen("editCategory", { category })}
+  // console.log(data, "data");
 
   const images = [
     {
       id: 1,
       url: "https://pbs.twimg.com/media/GdZysn8akAAOSod?format=jpg&name=4096x4096",
-      description: "A beautiful mountain landscape at sunrise.",
+      prompt: "A beautiful mountain landscape at sunrise.",
     },
 
     {
       id: 2,
       url: "https://pbs.twimg.com/media/GdYOwkNXkAAypiu?format=jpg&name=large",
-      description: "A serene beach with clear blue water.",
+      prompt: "A serene beach with clear blue water.",
     },
     {
       id: 3,
       url: "https://pbs.twimg.com/media/GdZysn8akAAOSod?format=jpg&name=4096x4096",
-      description: "A city skyline with skyscrapers during sunset.",
+      prompt: "A city skyline with skyscrapers during sunset.",
     },
   ];
 
   return (
     <View style={styles.container}>
-      <View style={styles.expand}>
+      {/* <View style={styles.expand}>
         {toggle ? (
           <TouchableOpacity
             onPress={() => setToggle(false)}
@@ -59,25 +64,66 @@ export default function feed() {
             <Foundation name="arrows-compress" size={24} color="#fff" />
           </TouchableOpacity>
         )}
-      </View>
-      <View style={[styles.expand, { left: toggle ? 300 : 310 }]}>
+      </View> */}
+      <View style={[styles.expand, { left: 300 }]}>
         <TouchableOpacity
-          onPress={() => setModalVisible(true)}
+          onPress={() => setModalVisible(!modalVisible)}
           style={[styles.expandIcon]}
         >
           <MaterialIcons name="token" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
 
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.centeredView}>
+          <Pressable
+            style={styles.modalView}
+            onPress={() => setModalVisible(!modalVisible)}
+          >
+            <View style={styles.inputContainer}>
+              <TextInput
+                value={prompt}
+                style={styles.textInput}
+                onChangeText={(value) => setPrompt(value)}
+                placeholder="prompt to generate an image"
+              />
+              {loading ? (
+                <ActivityIndicator
+                  style={{ position: "absolute", right: 10, bottom: "20%" }}
+                />
+              ) : (
+                <TouchableOpacity
+                  onPress={() => {
+                    generate(prompt);
+                  }}
+                  style={{ position: "absolute", right: 10, bottom: "20%" }}
+                >
+                  <MaterialIcons name="token" size={24} color="black" />
+                </TouchableOpacity>
+              )}
+            </View>
+          </Pressable>
+        </View>
+      </Modal>
+
       <FlatList
         data={data}
         renderItem={({ item }) => (
           <ImageGenerated
             image={item}
-            toggle={toggle}
             height={height}
             modalVisible={modalVisible}
             setModalVisible={setModalVisible}
+            generate={generate}
+            setPrompt={setPrompt}
+            prompt={prompt}
           />
         )}
         pagingEnabled
@@ -88,13 +134,13 @@ export default function feed() {
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
+    flex: 1,
     backgroundColor: "#000",
   },
   expand: {
     position: "absolute",
-    top: 40,
-    left: 20,
+    top: 70,
+    right: 50,
     zIndex: 300,
   },
   expandIcon: {
@@ -105,5 +151,47 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#a3a3a3",
     marginRight: 8,
+  },
+
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalView: {
+    width: "100%",
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.2)",
+    padding: 25,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: "#F194FF",
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  inputContainer: {
+    width: "100%",
+    height: 55,
+    marginTop: 8,
+  },
+  textInput: {
+    flex: 1,
+    marginTop: 8,
+    fontWeight: "400",
+    paddingHorizontal: 10,
+    paddingLeft: 30,
+    borderWidth: 1,
+    alignItems: "center",
+    borderColor: "#999",
+    backgroundColor: "#fff",
+    borderRadius: 30,
   },
 });

@@ -13,7 +13,7 @@ import { FlatList } from "react-native";
 import ImageGenerated from "@/components/imageGenerated";
 import { useData } from "@/hooks/useData";
 
-export default function explore() {
+export default function favorite() {
   const { height } = useWindowDimensions();
   const [toggle, setToggle] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
