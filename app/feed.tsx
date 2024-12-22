@@ -17,6 +17,7 @@ import { FlatList } from "react-native";
 import ImageGenerated from "@/components/imageGenerated";
 import { useData } from "@/hooks/useData";
 import { useGenerate } from "@/hooks/useGenerate";
+import EmptyState from "@/components/EmptyState";
 
 export default function feed() {
   const { height } = useWindowDimensions();
@@ -65,14 +66,16 @@ export default function feed() {
           </TouchableOpacity>
         )}
       </View> */}
-      <View style={[styles.expand, { left: 300 }]}>
-        <TouchableOpacity
-          onPress={() => setModalVisible(!modalVisible)}
-          style={[styles.expandIcon]}
-        >
-          <MaterialIcons name="token" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
+      {data.length > 0 && (
+        <View style={[styles.expand, { left: 350 }]}>
+          <TouchableOpacity
+            onPress={() => setModalVisible(!modalVisible)}
+            style={[styles.expandIcon]}
+          >
+            <MaterialIcons name="token" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      )}
 
       <Modal
         animationType="slide"
@@ -112,22 +115,31 @@ export default function feed() {
           </Pressable>
         </View>
       </Modal>
-
-      <FlatList
-        data={data}
-        renderItem={({ item }) => (
-          <ImageGenerated
-            image={item}
-            height={height}
-            modalVisible={modalVisible}
-            setModalVisible={setModalVisible}
-            generate={generate}
-            setPrompt={setPrompt}
-            prompt={prompt}
-          />
-        )}
-        pagingEnabled
-      />
+      {data.length === 0 ? (
+        <EmptyState
+          title="Empty"
+          subtitle="click button to enter prompt!"
+          buttonText="Generate"
+          setModalVisible={setModalVisible}
+          modalVisible={modalVisible}
+        />
+      ) : (
+        <FlatList
+          data={data}
+          renderItem={({ item }) => (
+            <ImageGenerated
+              image={item}
+              height={height}
+              modalVisible={modalVisible}
+              setModalVisible={setModalVisible}
+              generate={generate}
+              setPrompt={setPrompt}
+              prompt={prompt}
+            />
+          )}
+          pagingEnabled
+        />
+      )}
     </View>
   );
 }

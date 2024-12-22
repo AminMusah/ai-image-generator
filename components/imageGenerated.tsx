@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import Text from "./CustomText";
+import EmptyState from "./EmptyState";
 import { useEffect, useState } from "react";
 import { useData } from "@/hooks/useData";
 import { useGenerate } from "@/hooks/useGenerate";
@@ -39,9 +40,9 @@ export default function ImageGenerated({
     <View
       style={{
         height,
-        paddingVertical: 35,
-        paddingHorizontal: 15,
-        marginVertical: 20,
+        // paddingVertical: 35,
+        // paddingHorizontal: 15,
+        // marginVertical: 20,
       }}
     >
       {/* 
@@ -69,6 +70,7 @@ export default function ImageGenerated({
         resizeMode={"cover"}
       /> */}
       {/* ) : ( */}
+
       <Image
         style={[
           styles.image,
@@ -102,13 +104,13 @@ export default function ImageGenerated({
 const styles = StyleSheet.create({
   image: {
     width: "100%",
-    height: "100%",
+    height: "90%",
     borderWidth: 1,
     borderRadius: 30,
   },
   actionsContainer: {
     position: "absolute",
-    bottom: 50,
+    bottom: 160,
     right: 20,
   },
   action: {

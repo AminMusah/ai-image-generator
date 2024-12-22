@@ -12,6 +12,7 @@ import { Entypo, Feather, Foundation, MaterialIcons } from "@expo/vector-icons";
 import { FlatList } from "react-native";
 import ImageGenerated from "@/components/imageGenerated";
 import { useData } from "@/hooks/useData";
+import EmptyState from "@/components/EmptyState";
 
 export default function explore() {
   const { height } = useWindowDimensions();
@@ -43,7 +44,7 @@ export default function explore() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.expand}>
+      {/*  <View style={styles.expand}>
         {toggle ? (
           <TouchableOpacity
             onPress={() => setToggle(false)}
@@ -59,7 +60,7 @@ export default function explore() {
             <Foundation name="arrows-compress" size={24} color="#fff" />
           </TouchableOpacity>
         )}
-      </View>
+      </View>  */}
       {/* <View style={[styles.expand, { left: toggle ? 300 : 310 }]}>
         <TouchableOpacity
           onPress={() => setModalVisible(true)}
@@ -69,28 +70,37 @@ export default function explore() {
         </TouchableOpacity>
       </View> */}
 
-      <FlatList
-        data={data}
-        renderItem={({ item }) => (
-          <ImageGenerated
-            image={item}
-            height={height}
-            modalVisible={modalVisible}
-            setModalVisible={setModalVisible}
-            generate={() => {}}
-            setPrompt={() => {}}
-            prompt={""}
-          />
-        )}
-        pagingEnabled
-      />
+      {data.length === 0 ? (
+        <EmptyState
+          title="Empty"
+          subtitle="Explore page is empty!"
+          setModalVisible={setModalVisible}
+          modalVisible={modalVisible}
+        />
+      ) : (
+        <FlatList
+          data={data}
+          renderItem={({ item }) => (
+            <ImageGenerated
+              image={item}
+              height={height}
+              modalVisible={modalVisible}
+              setModalVisible={setModalVisible}
+              generate={() => {}}
+              setPrompt={() => {}}
+              prompt={""}
+            />
+          )}
+          pagingEnabled
+        />
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
+    flex: 1,
     backgroundColor: "#000",
   },
   expand: {
