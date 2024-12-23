@@ -13,11 +13,15 @@ import { FlatList } from "react-native";
 import ImageGenerated from "@/components/imageGenerated";
 import { useData } from "@/hooks/useData";
 import EmptyState from "@/components/EmptyState";
+import EventSource from "react-native-event-source";
 
 export default function explore() {
   const { height } = useWindowDimensions();
   const [toggle, setToggle] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [image, setImage] = useState<
+    { id: number; url: string; description: string }[]
+  >([]);
 
   const { data } = useData();
 
@@ -41,6 +45,42 @@ export default function explore() {
       description: "A city skyline with skyscrapers during sunset.",
     },
   ];
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://image.pollinations.ai/feed");
+        const result = await response.json();
+        setImage(result); // Set the fetched data to state
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch("https://image.pollinations.ai/feed");
+      const data = await response.json();
+      console.log(data, "data");
+      setImage((prevImages) => [...prevImages, ...data]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     fetchData();
+  //     console.log("hello");
+  //   }, 5000);
+
+  //   return () => clearInterval(interval);
+  // }, []);
+
+  console.log(image, "t");
 
   return (
     <View style={styles.container}>
