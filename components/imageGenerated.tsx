@@ -15,6 +15,9 @@ import EmptyState from "./EmptyState";
 import { useEffect, useState } from "react";
 import { useData } from "@/hooks/useData";
 import { useGenerate } from "@/hooks/useGenerate";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
+
 // import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface ImageGeneratedProps {
@@ -36,6 +39,35 @@ export default function ImageGenerated({
   generate,
   prompt,
 }: ImageGeneratedProps) {
+  const downloadImage = async (url: string) => {
+    const imageUri = "https://example.com/path-to-image.jpg"; // Replace with your image URL
+    const fileUri = FileSystem.documentDirectory + "downloaded-image.jpg";
+
+    try {
+      const { uri } = await FileSystem.downloadAsync(imageUri, fileUri);
+      Alert.alert("Download complete!", `File saved to: ${uri}`);
+      console.log("Downloaded file location:", uri);
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      Alert.alert("Error", "Failed to download the image.");
+    }
+  };
+
+  const shareImage = async (url: string) => {
+    try {
+      await Sharing.shareAsync(url, {
+        dialogTitle: "Save/Share Image",
+        mimeType: "image/jpeg",
+        UTI: "public.jpeg",
+      });
+      Alert.alert("Sharing complete!");
+      console.log("Sharing complete!");
+    } catch (error) {
+      console.error("Error sharing image:", error);
+      Alert.alert("Error", "Failed to share the image.");
+    }
+  };
+
   return (
     <View
       style={{
@@ -83,7 +115,26 @@ export default function ImageGenerated({
       />
       {/* )} */}
       <View style={styles.actionsContainer}>
-        <Entypo name="forward" size={34} color="white" style={styles.action} />
+        <TouchableOpacity onPress={() => downloadImage("")}>
+          <Entypo
+            name="download"
+            size={34}
+            color="white"
+            style={styles.action}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            shareImage(image.url);
+          }}
+        >
+          <Entypo
+            name="forward"
+            size={34}
+            color="white"
+            style={styles.action}
+          />
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
             console.log("hello");
