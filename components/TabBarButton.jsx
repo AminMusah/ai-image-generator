@@ -26,7 +26,7 @@ const TabBarButton = (props) => {
 
     return {
       // styles
-      transform: [{ scale: scaleValue }],
+      // transform: [{ scale: scaleValue }],
       top,
     };
   });

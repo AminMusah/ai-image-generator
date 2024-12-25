@@ -142,6 +142,7 @@ const styles = StyleSheet.create({
   },
   subContainer: {
     paddingTop: 30,
+    paddingBottom: 80,
   },
   wrapper: {
     flexDirection: "row",

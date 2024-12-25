@@ -4,8 +4,8 @@ import { AntDesign, Feather } from "@expo/vector-icons";
 import TabBarButton from "./TabBarButton";
 
 const TabBar = ({ state, descriptors, navigation }) => {
-  const primaryColor = "#0891b2";
-  const greyColor = "#737373";
+  const primaryColor = "#5F5AA2";
+  const greyColor = "#000";
   return (
     <View style={styles.tabbar}>
       {state.routes.map((route, index) => {
@@ -52,31 +52,6 @@ const TabBar = ({ state, descriptors, navigation }) => {
             label={label}
           />
         );
-
-        // return (
-        //   <TouchableOpacity
-        //     key={route.name}
-        //     style={styles.tabbarItem}
-        //     accessibilityRole="button"
-        //     accessibilityState={isFocused ? { selected: true } : {}}
-        //     accessibilityLabel={options.tabBarAccessibilityLabel}
-        //     testID={options.tabBarTestID}
-        //     onPress={onPress}
-        //     onLongPress={onLongPress}
-        //   >
-        //     {
-        //         icons[route.name]({
-        //             color: isFocused? primaryColor: greyColor
-        //         })
-        //     }
-        //     <Text style={{
-        //         color: isFocused ? primaryColor : greyColor,
-        //         fontSize: 11
-        //     }}>
-        //       {label}
-        //     </Text>
-        //   </TouchableOpacity>
-        // );
       })}
     </View>
   );
@@ -91,7 +66,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
     marginHorizontal: 20,
-    paddingVertical: 15,
+    paddingVertical: 10,
     borderRadius: 12,
     borderCurve: "continuous",
     shadowColor: "black",
