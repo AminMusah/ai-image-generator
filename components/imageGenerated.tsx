@@ -17,6 +17,7 @@ import { useData } from "@/hooks/useData";
 import { useGenerate } from "@/hooks/useGenerate";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import * as MediaLibrary from "expo-media-library";
 
 // import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -39,14 +40,35 @@ export default function ImageGenerated({
   generate,
   prompt,
 }: ImageGeneratedProps) {
+  const requestPermission = async () => {
+    const { status, canAskAgain, expires, granted } =
+      await MediaLibrary.requestPermissionsAsync();
+
+    return { status, granted, canAskAgain, expires };
+  };
+
   const downloadImage = async (url: string) => {
-    const imageUri = "https://example.com/path-to-image.jpg"; // Replace with your image URL
-    const fileUri = FileSystem.documentDirectory + "downloaded-image.jpg";
+    // Check if the URL is valid before proceeding
+    console.log(url, "url");
+    if (!url || url.trim() === "") {
+      console.error("Invalid URL: URL cannot be empty");
+      Alert.alert("Error", "Invalid URL: URL cannot be empty");
+      return;
+    }
+
+    const { status, granted } = await requestPermission();
+
+    if (status !== MediaLibrary.PermissionStatus.GRANTED) {
+      console.log("Permission denied");
+      return;
+    }
+
+    const fileUri = `${FileSystem.documentDirectory}downloaded-image.jpg`;
 
     try {
-      const { uri } = await FileSystem.downloadAsync(imageUri, fileUri);
-      Alert.alert("Download complete!", `File saved to: ${uri}`);
+      const { uri } = await FileSystem.downloadAsync(url, fileUri);
       console.log("Downloaded file location:", uri);
+      await saveImageToGallery(uri);
     } catch (error) {
       console.error("Error downloading image:", error);
       Alert.alert("Error", "Failed to download the image.");
@@ -65,6 +87,30 @@ export default function ImageGenerated({
     } catch (error) {
       console.error("Error sharing image:", error);
       Alert.alert("Error", "Failed to share the image.");
+    }
+  };
+
+  const saveImageToGallery = async (localUri: string) => {
+    if (!localUri.startsWith("file:///")) {
+      console.error("Invalid URI: Must start with 'file:///'");
+      return;
+    }
+
+    try {
+      // Check if the file exists before creating an asset
+      const fileInfo = await FileSystem.getInfoAsync(localUri);
+      if (!fileInfo.exists) {
+        console.error("File does not exist:", localUri);
+        Alert.alert("Error", "File does not exist.");
+        return;
+      }
+
+      const asset = await MediaLibrary.createAssetAsync(localUri);
+      Alert.alert("Success", `Image saved to gallery: ${asset.uri}`);
+      console.log("Saved asset URI:", asset.uri);
+    } catch (error) {
+      console.error("Error saving image to gallery:", error);
+      Alert.alert("Error", "Failed to save the image to gallery.");
     }
   };
 
@@ -115,7 +161,7 @@ export default function ImageGenerated({
       />
       {/* )} */}
       <View style={styles.actionsContainer}>
-        <TouchableOpacity onPress={() => downloadImage("")}>
+        <TouchableOpacity onPress={() => downloadImage(image.url)}>
           <Entypo
             name="download"
             size={34}

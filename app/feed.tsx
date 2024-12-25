@@ -103,8 +103,8 @@ export default function feed() {
                 />
               ) : (
                 <TouchableOpacity
-                  onPress={() => {
-                    generate(prompt);
+                  onPress={async () => {
+                    await generate(prompt, setModalVisible, modalVisible);
                   }}
                   style={{ position: "absolute", right: 10, bottom: "20%" }}
                 >
@@ -132,7 +132,9 @@ export default function feed() {
               height={height}
               modalVisible={modalVisible}
               setModalVisible={setModalVisible}
-              generate={generate}
+              generate={(prompt) =>
+                generate(prompt, setModalVisible, modalVisible)
+              }
               setPrompt={setPrompt}
               prompt={prompt}
             />
