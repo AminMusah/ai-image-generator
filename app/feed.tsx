@@ -27,7 +27,7 @@ export default function feed() {
   const [render, setRender] = useState(false);
   const { data, rendering } = useData();
   const { loading, setPrompt, prompt, generate } = useGenerate();
-  console.log(data);
+  const navigator = useNavigation();
 
   useEffect(() => {
     console.log("feed");
@@ -35,27 +35,30 @@ export default function feed() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.expand}>
-        <TouchableOpacity
-          onPress={async () => {
-            await AsyncStorage.removeItem("@images");
-
-            setRender(!render);
-          }}
-          style={styles.expandIcon}
-        >
-          <Foundation name="arrows-compress" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
       {data.length > 0 && (
-        <View style={[styles.expand, { left: 350 }]}>
-          <TouchableOpacity
-            onPress={() => setModalVisible(!modalVisible)}
-            style={[styles.expandIcon]}
-          >
-            <MaterialIcons name="token" size={24} color="#fff" />
-          </TouchableOpacity>
-        </View>
+        <>
+          <View style={styles.expand}>
+            <TouchableOpacity
+              onPress={async () => {
+                await AsyncStorage.removeItem("@images");
+                navigator.goBack();
+                setRender(!render);
+              }}
+              style={styles.expandIcon}
+            >
+              <Feather name="chevron-left" size={24} color="#fff" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={[styles.expand, { left: 350 }]}>
+            <TouchableOpacity
+              onPress={() => setModalVisible(!modalVisible)}
+              style={[styles.expandIcon]}
+            >
+              <MaterialIcons name="token" size={24} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        </>
       )}
 
       <Modal
@@ -135,9 +138,11 @@ const styles = StyleSheet.create({
   },
   expand: {
     position: "absolute",
-    top: 70,
+    top: 50,
     right: 50,
     zIndex: 300,
+    justifyContent: "space-between",
+    width: "80%",
   },
   expandIcon: {
     width: 40,

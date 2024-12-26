@@ -28,7 +28,7 @@ export default function favorite() {
   const [modalVisible, setModalVisible] = useState(false);
   const [favorites, setFavorites] = useState([]);
   const [render, setRender] = useState(false);
-
+  const navigator = useNavigation();
   const { rendering } = useData();
 
   const getImagesFromStorage = async () => {
@@ -60,31 +60,22 @@ export default function favorite() {
 
   return (
     <View style={styles.container}>
-      {/*<View style={styles.expand}>
-        {toggle ? (
-          <TouchableOpacity
-            onPress={() => setToggle(false)}
-            style={styles.expandIcon}
-          >
-            <Foundation name="arrows-expand" size={24} color="#fff" />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            onPress={() => setToggle(true)}
-            style={styles.expandIcon}
-          >
-            <Foundation name="arrows-compress" size={24} color="#fff" />
-          </TouchableOpacity>
-        )}
-      </View> /*}
-      {/* <View style={[styles.expand, { left: toggle ? 300 : 310 }]}>
-        <TouchableOpacity
-          onPress={() => setModalVisible(true)}
-          style={[styles.expandIcon]}
-        >
-          <MaterialIcons name="token" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View> */}
+      {favorites.length > 0 && (
+        <>
+          <View style={styles.expand}>
+            <TouchableOpacity
+              onPress={async () => {
+                await AsyncStorage.removeItem("@images");
+                navigator.goBack();
+                setRender(!render);
+              }}
+              style={styles.expandIcon}
+            >
+              <Feather name="chevron-left" size={24} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
       {favorites.length === 0 ? (
         <EmptyState
           title="Empty"

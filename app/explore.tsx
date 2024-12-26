@@ -26,36 +26,28 @@ export default function explore() {
   >([]);
 
   const { data, rendering } = useData();
+  const navigator = useNavigation();
 
   console.log("hi", rendering);
 
   return (
     <View style={styles.container}>
-      {/*  <View style={styles.expand}>
-        {toggle ? (
-          <TouchableOpacity
-            onPress={() => setToggle(false)}
-            style={styles.expandIcon}
-          >
-            <Foundation name="arrows-expand" size={24} color="#fff" />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            onPress={() => setToggle(true)}
-            style={styles.expandIcon}
-          >
-            <Foundation name="arrows-compress" size={24} color="#fff" />
-          </TouchableOpacity>
-        )}
-      </View>  */}
-      {/* <View style={[styles.expand, { left: toggle ? 300 : 310 }]}>
-        <TouchableOpacity
-          onPress={() => setModalVisible(true)}
-          style={[styles.expandIcon]}
-        >
-          <MaterialIcons name="token" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View> */}
+      {data.length > 0 && (
+        <>
+          <View style={styles.expand}>
+            <TouchableOpacity
+              onPress={async () => {
+                await AsyncStorage.removeItem("@images");
+                navigator.goBack();
+                setRender(!render);
+              }}
+              style={styles.expandIcon}
+            >
+              <Feather name="chevron-left" size={24} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
 
       {data.length === 0 ? (
         <EmptyState
@@ -96,7 +88,7 @@ const styles = StyleSheet.create({
   },
   expand: {
     position: "absolute",
-    top: 40,
+    top: 50,
     left: 20,
     zIndex: 300,
   },
