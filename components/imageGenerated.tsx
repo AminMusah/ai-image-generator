@@ -1,4 +1,9 @@
-import { Entypo, Feather, MaterialIcons } from "@expo/vector-icons";
+import {
+  Entypo,
+  Feather,
+  MaterialIcons,
+  FontAwesome,
+} from "@expo/vector-icons";
 import {
   StyleSheet,
   Image,
@@ -18,8 +23,7 @@ import { useGenerate } from "@/hooks/useGenerate";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import * as MediaLibrary from "expo-media-library";
-
-// import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface ImageGeneratedProps {
   prompt: string;
@@ -29,6 +33,12 @@ interface ImageGeneratedProps {
   setModalVisible: (visible: boolean) => void;
   setPrompt: (visible: string) => void;
   generate: (prompt: string) => void;
+}
+
+interface ImageProps {
+  id: number;
+  url: string;
+  prompt: string;
 }
 
 export default function ImageGenerated({
@@ -75,21 +85,6 @@ export default function ImageGenerated({
     }
   };
 
-  const shareImage = async (url: string) => {
-    try {
-      await Sharing.shareAsync(url, {
-        dialogTitle: "Save/Share Image",
-        mimeType: "image/jpeg",
-        UTI: "public.jpeg",
-      });
-      Alert.alert("Sharing complete!");
-      console.log("Sharing complete!");
-    } catch (error) {
-      console.error("Error sharing image:", error);
-      Alert.alert("Error", "Failed to share the image.");
-    }
-  };
-
   const saveImageToGallery = async (localUri: string) => {
     if (!localUri.startsWith("file:///")) {
       console.error("Invalid URI: Must start with 'file:///'");
@@ -111,6 +106,56 @@ export default function ImageGenerated({
     } catch (error) {
       console.error("Error saving image to gallery:", error);
       Alert.alert("Error", "Failed to save the image to gallery.");
+    }
+  };
+
+  const shareImage = async (url: string) => {
+    try {
+      await Sharing.shareAsync(url, {
+        dialogTitle: "Save/Share Image",
+        mimeType: "image/jpeg",
+        UTI: "public.jpeg",
+      });
+      Alert.alert("Sharing complete!");
+      console.log("Sharing complete!");
+    } catch (error) {
+      console.error("Error sharing image:", error);
+      Alert.alert("Error", "Failed to share the image.");
+    }
+  };
+
+  const saveImageToStorage = async (image: ImageProps) => {
+    try {
+      // Retrieve the current images from AsyncStorage
+      const jsonValue = await AsyncStorage.getItem("@images");
+      const currentImages = jsonValue != null ? JSON.parse(jsonValue) : [];
+
+      // Add the new image to the array
+      const updatedImages = [...currentImages, image];
+
+      // Convert the updated array to a JSON string
+      const updatedJsonValue = JSON.stringify(updatedImages);
+
+      // Save the updated JSON string to AsyncStorage
+      await AsyncStorage.setItem("@images", updatedJsonValue);
+      console.log("Image saved successfully");
+    } catch (error) {
+      console.error("Error saving image:", error);
+    }
+  };
+
+  const getImagesFromStorage = async () => {
+    try {
+      // Retrieve the JSON string from AsyncStorage
+      const jsonValue = await AsyncStorage.getItem("@images");
+
+      // Parse the JSON string back into an array
+      const images = jsonValue != null ? JSON.parse(jsonValue) : [];
+      console.log("Retrieved images:", images);
+      return images;
+    } catch (error) {
+      console.error("Error retrieving images:", error);
+      return [];
     }
   };
 
@@ -161,6 +206,16 @@ export default function ImageGenerated({
       />
       {/* )} */}
       <View style={styles.actionsContainer}>
+        <TouchableOpacity
+          onPress={() => {
+            console.log("hello");
+
+            saveImageToStorage(image);
+          }}
+          style={styles.action}
+        >
+          <FontAwesome name="heart" size={34} color="white" />
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => downloadImage(image.url)}>
           <Entypo
             name="download"
@@ -180,15 +235,6 @@ export default function ImageGenerated({
             color="white"
             style={styles.action}
           />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            console.log("hello");
-
-            // storeData("favorite", image.url)
-          }}
-        >
-          <Feather name="heart" size={34} color="white" />
         </TouchableOpacity>
       </View>
       <Text style={{ color: "#fff", fontWeight: 900, marginTop: 10 }}>
@@ -211,7 +257,7 @@ const styles = StyleSheet.create({
     right: 20,
   },
   action: {
-    marginBottom: 20,
+    marginBottom: 40,
   },
 
   textStyle: {

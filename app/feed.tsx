@@ -132,9 +132,7 @@ export default function feed() {
               height={height}
               modalVisible={modalVisible}
               setModalVisible={setModalVisible}
-              generate={(prompt) =>
-                generate(prompt, setModalVisible, modalVisible)
-              }
+              generate={(prompt) => generate(prompt, null, null)}
               setPrompt={setPrompt}
               prompt={prompt}
             />

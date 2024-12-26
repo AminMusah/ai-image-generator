@@ -43,7 +43,7 @@ export default function HomeScreen() {
             placeholder="prompt to generate an image"
           />
           <TouchableOpacity
-            onPress={() => generate(prompt)}
+            onPress={() => generate(prompt, null, null)}
             style={{ position: "absolute", right: 10, bottom: "20%" }}
           >
             <MaterialIcons name="token" size={24} color="black" />
