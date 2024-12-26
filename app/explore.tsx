@@ -14,73 +14,20 @@ import ImageGenerated from "@/components/imageGenerated";
 import { useData } from "@/hooks/useData";
 import EmptyState from "@/components/EmptyState";
 import EventSource from "react-native-event-source";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function explore() {
   const { height } = useWindowDimensions();
   const [toggle, setToggle] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [render, setRender] = useState(false);
   const [image, setImage] = useState<
     { id: number; url: string; description: string }[]
   >([]);
 
-  const { data } = useData();
+  const { data, rendering } = useData();
 
-  console.log(data, "data");
-
-  const images = [
-    {
-      id: 1,
-      url: "https://pbs.twimg.com/media/GdZysn8akAAOSod?format=jpg&name=4096x4096",
-      description: "A beautiful mountain landscape at sunrise.",
-    },
-
-    {
-      id: 2,
-      url: "https://pbs.twimg.com/media/GdYOwkNXkAAypiu?format=jpg&name=large",
-      description: "A serene beach with clear blue water.",
-    },
-    {
-      id: 3,
-      url: "https://pbs.twimg.com/media/GdZysn8akAAOSod?format=jpg&name=4096x4096",
-      description: "A city skyline with skyscrapers during sunset.",
-    },
-  ];
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("https://image.pollinations.ai/feed");
-        const result = await response.json();
-        setImage(result); // Set the fetched data to state
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch("https://image.pollinations.ai/feed");
-      const data = await response.json();
-      console.log(data, "data");
-      setImage((prevImages) => [...prevImages, ...data]);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     fetchData();
-  //     console.log("hello");
-  //   }, 5000);
-
-  //   return () => clearInterval(interval);
-  // }, []);
-
-  console.log(image, "t");
+  console.log("hi", rendering);
 
   return (
     <View style={styles.container}>
@@ -114,12 +61,14 @@ export default function explore() {
         <EmptyState
           title="Empty"
           subtitle="Explore page is empty!"
+          buttonText="Go back"
           setModalVisible={setModalVisible}
           modalVisible={modalVisible}
         />
       ) : (
         <FlatList
           data={data}
+          keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <ImageGenerated
               image={item}
@@ -129,6 +78,8 @@ export default function explore() {
               generate={() => {}}
               setPrompt={() => {}}
               prompt={""}
+              render={render}
+              setRender={setRender}
             />
           )}
           pagingEnabled

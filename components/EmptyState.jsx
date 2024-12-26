@@ -1,15 +1,17 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import React from "react";
-import { useNavigation } from "expo-router";
+import { useNavigation, Link, useRouter } from "expo-router";
 
 const EmptyState = ({
   title = "Uh Oh",
   subtitle = "Something went wrong!",
   buttonText = "Go Home",
+  buttonLink = "/index",
   setModalVisible,
   modalVisible,
 }) => {
   const navigation = useNavigation();
+  const router = useRouter();
 
   return (
     <View
@@ -28,31 +30,42 @@ const EmptyState = ({
     >
       <Text style={{ fontSize: 30, fontWeight: 600 }}>{title}</Text>
       <Text style={{ fontSize: 20, marginVertical: 5 }}>{subtitle}</Text>
+
       <TouchableOpacity
-        style={{
-          alignItems: "center",
-          justifyContent: "center",
-          marginTop: 12,
-          backgroundColor: "#000",
-          borderRadius: 10,
-          flexDirection: "row",
-          marginHorizontal: 18,
-          borderWidth: 1,
-          paddingHorizontal: 20,
-          paddingVertical: 10,
-        }}
+        style={styles.button}
         onPress={() => {
           if (buttonText === "Generate") {
             setModalVisible(!modalVisible);
+          } else if (buttonLink.split("")[0] === "/") {
+            router.push("/feed");
           } else {
             navigation.goBack();
           }
         }}
       >
-        <Text style={{ fontSize: 18, color: "#fff" }}>{buttonText}</Text>
+        <Text style={styles.buttonText}>{buttonText}</Text>
       </TouchableOpacity>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  button: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 12,
+    backgroundColor: "#000",
+    borderRadius: 10,
+    flexDirection: "row",
+    marginHorizontal: 18,
+    borderWidth: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  buttonText: {
+    fontSize: 18,
+    color: "#fff",
+  },
+});
 
 export default EmptyState;

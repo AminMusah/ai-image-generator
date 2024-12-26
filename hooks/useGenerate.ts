@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { useData } from "./useData";
+import uuid from "react-native-uuid";
 
 export const useGenerate = () => {
-  const [images, setImages] = useState<{ url: string; prompt: string }[]>([]);
+  const [images, setImages] = useState<
+    { url: string; prompt: string; fav: boolean }[]
+  >([]);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const { addImages } = useData();
@@ -22,7 +25,7 @@ export const useGenerate = () => {
         }
       })
       .then((imageUrl) => {
-        const newImage = { id: Date.now(), url: imageUrl, prompt };
+        const newImage = { id: uuid.v4(), url: imageUrl, prompt, fav: false };
         setImages((prevImages) => [...prevImages, newImage]);
         addImages("addImages", [newImage]);
         setPrompt("");

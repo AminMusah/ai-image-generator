@@ -13,34 +13,50 @@ import { FlatList } from "react-native";
 import ImageGenerated from "@/components/imageGenerated";
 import { useData } from "@/hooks/useData";
 import EmptyState from "@/components/EmptyState";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+interface ImageProps {
+  id: number;
+  url: string;
+  prompt: string;
+  fav: boolean;
+}
 
 export default function favorite() {
   const { height } = useWindowDimensions();
   const [toggle, setToggle] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [favorites, setFavorites] = useState([]);
+  const [render, setRender] = useState(false);
 
-  const { data } = useData();
+  const { rendering } = useData();
 
-  console.log(data, "data");
+  const getImagesFromStorage = async () => {
+    try {
+      // Retrieve the JSON string from AsyncStorage
+      const jsonValue = await AsyncStorage.getItem("@images");
 
-  const images = [
-    {
-      id: 1,
-      url: "https://pbs.twimg.com/media/GdZysn8akAAOSod?format=jpg&name=4096x4096",
-      description: "A beautiful mountain landscape at sunrise.",
-    },
+      // Parse the JSON string back into an array
+      const images = jsonValue != null ? JSON.parse(jsonValue) : [];
+      console.log("Retrieved images:", images);
 
-    {
-      id: 2,
-      url: "https://pbs.twimg.com/media/GdYOwkNXkAAypiu?format=jpg&name=large",
-      description: "A serene beach with clear blue water.",
-    },
-    {
-      id: 3,
-      url: "https://pbs.twimg.com/media/GdZysn8akAAOSod?format=jpg&name=4096x4096",
-      description: "A city skyline with skyscrapers during sunset.",
-    },
-  ];
+      const updatedImages = images.filter((image: ImageProps) => image.fav);
+
+      setFavorites(updatedImages); // Filter images with 'fav = true'
+      // return images;
+    } catch (error) {
+      console.error("Error retrieving images:", error);
+      return [];
+    }
+  };
+
+  console.log(rendering, "fa");
+
+  useEffect(() => {
+    getImagesFromStorage();
+  }, [render, rendering]);
+
+  console.log(favorites, "hi", render, rendering);
 
   return (
     <View style={styles.container}>
@@ -69,23 +85,26 @@ export default function favorite() {
           <MaterialIcons name="token" size={24} color="#fff" />
         </TouchableOpacity>
       </View> */}
-      {data.length === 0 ? (
+      {favorites.length === 0 ? (
         <EmptyState
           title="Empty"
-          subtitle="click button to enter prompt!"
-          buttonText="Generate"
+          subtitle="Your favorite images are waiting"
+          buttonText="Go to feed"
+          buttonLink="/feed"
           setModalVisible={modalVisible}
           modalVisible={modalVisible}
         />
       ) : (
         <FlatList
-          data={data}
+          data={favorites}
           renderItem={({ item }) => (
             <ImageGenerated
               image={item}
               height={height}
               modalVisible={modalVisible}
               setModalVisible={setModalVisible}
+              render={render}
+              setRender={setRender}
               generate={() => {}}
               setPrompt={() => {}}
               prompt={""}
@@ -102,6 +121,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
+    // paddingBottom: 40,
   },
   expand: {
     position: "absolute",

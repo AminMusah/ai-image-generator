@@ -18,54 +18,35 @@ import ImageGenerated from "@/components/imageGenerated";
 import { useData } from "@/hooks/useData";
 import { useGenerate } from "@/hooks/useGenerate";
 import EmptyState from "@/components/EmptyState";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function feed() {
   const { height } = useWindowDimensions();
   const [toggle, setToggle] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-  const { data } = useData();
+  const [render, setRender] = useState(false);
+  const { data, rendering } = useData();
   const { loading, setPrompt, prompt, generate } = useGenerate();
+  console.log(data);
 
-  // console.log(data, "data");
-
-  const images = [
-    {
-      id: 1,
-      url: "https://pbs.twimg.com/media/GdZysn8akAAOSod?format=jpg&name=4096x4096",
-      prompt: "A beautiful mountain landscape at sunrise.",
-    },
-
-    {
-      id: 2,
-      url: "https://pbs.twimg.com/media/GdYOwkNXkAAypiu?format=jpg&name=large",
-      prompt: "A serene beach with clear blue water.",
-    },
-    {
-      id: 3,
-      url: "https://pbs.twimg.com/media/GdZysn8akAAOSod?format=jpg&name=4096x4096",
-      prompt: "A city skyline with skyscrapers during sunset.",
-    },
-  ];
+  useEffect(() => {
+    console.log("feed");
+  }, [render, rendering]);
 
   return (
     <View style={styles.container}>
-      {/* <View style={styles.expand}>
-        {toggle ? (
-          <TouchableOpacity
-            onPress={() => setToggle(false)}
-            style={styles.expandIcon}
-          >
-            <Foundation name="arrows-expand" size={24} color="#fff" />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            onPress={() => setToggle(true)}
-            style={styles.expandIcon}
-          >
-            <Foundation name="arrows-compress" size={24} color="#fff" />
-          </TouchableOpacity>
-        )}
-      </View> */}
+      <View style={styles.expand}>
+        <TouchableOpacity
+          onPress={async () => {
+            await AsyncStorage.removeItem("@images");
+
+            setRender(!render);
+          }}
+          style={styles.expandIcon}
+        >
+          <Foundation name="arrows-compress" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
       {data.length > 0 && (
         <View style={[styles.expand, { left: 350 }]}>
           <TouchableOpacity
@@ -126,6 +107,7 @@ export default function feed() {
       ) : (
         <FlatList
           data={data}
+          keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <ImageGenerated
               image={item}
@@ -135,6 +117,8 @@ export default function feed() {
               generate={(prompt) => generate(prompt, null, null)}
               setPrompt={setPrompt}
               prompt={prompt}
+              render={render}
+              setRender={setRender}
             />
           )}
           pagingEnabled

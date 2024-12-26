@@ -27,10 +27,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface ImageGeneratedProps {
   prompt: string;
-  image: { id: any; url: string; prompt: string };
+  image: { id: any; url: string; prompt: string; fav: boolean };
   height: any;
   modalVisible: boolean;
   setModalVisible: (visible: boolean) => void;
+  render: boolean;
+  setRender: (visible: boolean) => void;
   setPrompt: (visible: string) => void;
   generate: (prompt: string) => void;
 }
@@ -39,6 +41,7 @@ interface ImageProps {
   id: number;
   url: string;
   prompt: string;
+  fav: boolean;
 }
 
 export default function ImageGenerated({
@@ -49,7 +52,10 @@ export default function ImageGenerated({
   setPrompt,
   generate,
   prompt,
+  render,
+  setRender,
 }: ImageGeneratedProps) {
+  const { onRender, rendering } = useData();
   const requestPermission = async () => {
     const { status, canAskAgain, expires, granted } =
       await MediaLibrary.requestPermissionsAsync();
@@ -130,15 +136,30 @@ export default function ImageGenerated({
       const jsonValue = await AsyncStorage.getItem("@images");
       const currentImages = jsonValue != null ? JSON.parse(jsonValue) : [];
 
-      // Add the new image to the array
-      const updatedImages = [...currentImages, image];
+      // Check if the image already exists
+      const imageIndex = currentImages.findIndex(
+        (img: ImageProps) => img.id === image.id
+      );
+
+      if (imageIndex !== -1) {
+        // If it exists, toggle the fav property
+        const existingImage = currentImages[imageIndex];
+        existingImage.fav = !existingImage.fav; // Toggle fav
+        currentImages[imageIndex] = existingImage; // Update the existing image
+        console.log("Image updated in storage with toggled fav.");
+      } else {
+        // If it doesn't exist, add the new image with fav set to true
+        const newImage = { ...image, fav: true }; // Set fav to true for new images
+        currentImages.push(newImage);
+        console.log("Image added to storage.");
+      }
 
       // Convert the updated array to a JSON string
-      const updatedJsonValue = JSON.stringify(updatedImages);
+      const updatedJsonValue = JSON.stringify(currentImages);
 
       // Save the updated JSON string to AsyncStorage
       await AsyncStorage.setItem("@images", updatedJsonValue);
-      console.log("Image saved successfully");
+      console.log("Images saved successfully");
     } catch (error) {
       console.error("Error saving image:", error);
     }
@@ -148,9 +169,10 @@ export default function ImageGenerated({
     try {
       // Retrieve the JSON string from AsyncStorage
       const jsonValue = await AsyncStorage.getItem("@images");
+      console.log(" images:", jsonValue);
 
       // Parse the JSON string back into an array
-      const images = jsonValue != null ? JSON.parse(jsonValue) : [];
+      const images = jsonValue !== null ? JSON.parse(jsonValue) : [];
       console.log("Retrieved images:", images);
       return images;
     } catch (error) {
@@ -159,41 +181,41 @@ export default function ImageGenerated({
     }
   };
 
+  const removeImageFromStorage = async (imageId: any) => {
+    try {
+      // Retrieve the current images from AsyncStorage
+      const jsonValue = await AsyncStorage.getItem("@images");
+      const currentImages = jsonValue !== null ? JSON.parse(jsonValue) : [];
+
+      console.log("Current Images:", currentImages);
+
+      // Filter out the image with the matching id
+      const updatedImages = currentImages.filter(
+        (image: any) => image.id !== imageId
+      );
+
+      console.log("Updated Images:", updatedImages);
+
+      // Save the updated array back to AsyncStorage
+      const updatedJsonValue = JSON.stringify(updatedImages);
+      await AsyncStorage.setItem("@images", updatedJsonValue);
+
+      console.log(`Image with ID ${imageId} removed successfully`);
+    } catch (error) {
+      console.error("Error removing image:", error);
+    }
+  };
+
+  useEffect(() => {
+    getImagesFromStorage();
+  }, [render, rendering]);
+
   return (
     <View
       style={{
         height,
-        // paddingVertical: 35,
-        // paddingHorizontal: 15,
-        // marginVertical: 20,
       }}
     >
-      {/* 
-      <View style={[styles.expand, { left: toggle ? 300 : 310 }]}>
-        <TouchableOpacity
-          onPress={() => setModalVisible(true)}
-          style={[styles.expandIcon]}
-        >
-          <MaterialIcons name="token" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View> */}
-
-      {/* {!image?.url ? ( */}
-      {/* <Image
-        style={[
-          styles.image,
-          {
-                       borderRadius: 30,
-
-          },
-        ]}
-        source={{
-          uri: "https://pbs.twimg.com/media/GdZysn8akAAOSod?format=jpg&name=4096x4096",
-        }}
-        resizeMode={"cover"}
-      /> */}
-      {/* ) : ( */}
-
       <Image
         style={[
           styles.image,
@@ -204,17 +226,35 @@ export default function ImageGenerated({
         source={{ uri: image.url }}
         resizeMode={"cover"}
       />
-      {/* )} */}
       <View style={styles.actionsContainer}>
         <TouchableOpacity
-          onPress={() => {
-            console.log("hello");
+          onPress={async () => {
+            const imagesInStorage = await getImagesFromStorage();
+            const imageExists = imagesInStorage.some(
+              (img: ImageProps) => img.id === image.id
+            );
 
-            saveImageToStorage(image);
+            if (imageExists) {
+              const updatedImage = { ...image, fav: true };
+              console.log(updatedImage, "up");
+              console.log(updatedImage, "up");
+              saveImageToStorage(updatedImage);
+              // removeImageFromStorage(updatedImage.id);
+            } else {
+              const updatedImage = { ...image, fav: false };
+              console.log(updatedImage, "update");
+              saveImageToStorage(updatedImage);
+            }
+            setRender(!render);
+            onRender({ rendering: render });
           }}
           style={styles.action}
         >
-          <FontAwesome name="heart" size={34} color="white" />
+          <FontAwesome
+            name="heart"
+            size={34}
+            color={image.fav ? "red" : "white"}
+          />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => downloadImage(image.url)}>
           <Entypo
@@ -237,9 +277,7 @@ export default function ImageGenerated({
           />
         </TouchableOpacity>
       </View>
-      <Text style={{ color: "#fff", fontWeight: 900, marginTop: 10 }}>
-        {image.prompt}
-      </Text>
+      <Text style={styles.prompt}>{image.prompt}</Text>
     </View>
   );
 }
@@ -269,7 +307,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: "center",
   },
-
+  prompt: { color: "#fff", fontWeight: 900, marginTop: 10 },
   expand: {
     position: "absolute",
     top: 40,
