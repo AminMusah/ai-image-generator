@@ -19,7 +19,6 @@ import Text from "./CustomText";
 import EmptyState from "./EmptyState";
 import { useEffect, useState } from "react";
 import { useData } from "@/hooks/useData";
-import { useGenerate } from "@/hooks/useGenerate";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import * as MediaLibrary from "expo-media-library";
@@ -56,6 +55,7 @@ export default function ImageGenerated({
   setRender,
 }: ImageGeneratedProps) {
   const { onRender, rendering } = useData();
+
   const requestPermission = async () => {
     const { status, canAskAgain, expires, granted } =
       await MediaLibrary.requestPermissionsAsync();
@@ -122,7 +122,6 @@ export default function ImageGenerated({
         mimeType: "image/jpeg",
         UTI: "public.jpeg",
       });
-      Alert.alert("Sharing complete!");
       console.log("Sharing complete!");
     } catch (error) {
       console.error("Error sharing image:", error);

@@ -15,6 +15,7 @@ export const useGenerate = () => {
     setModalVisible: null | React.Dispatch<React.SetStateAction<boolean>>,
     modalVisible: boolean | null
   ) => {
+    console.log(text, "text");
     setLoading(true);
     fetch(`https://image.pollinations.ai/prompt/${text}`)
       .then((res) => {
@@ -25,10 +26,15 @@ export const useGenerate = () => {
         }
       })
       .then((imageUrl) => {
-        const newImage = { id: uuid.v4(), url: imageUrl, prompt, fav: false };
+        const newImage = {
+          id: uuid.v4(),
+          url: imageUrl,
+          prompt: text || prompt,
+          fav: false,
+        };
         setImages((prevImages) => [...prevImages, newImage]);
         addImages("addImages", [newImage]);
-        setPrompt("");
+        // setPrompt("");
         if (setModalVisible) {
           setModalVisible(!modalVisible);
         }

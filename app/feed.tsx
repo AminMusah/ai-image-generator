@@ -9,6 +9,8 @@ import {
   Modal,
   Pressable,
   TextInput,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Stack, useNavigation } from "expo-router";
@@ -19,19 +21,64 @@ import { useData } from "@/hooks/useData";
 import { useGenerate } from "@/hooks/useGenerate";
 import EmptyState from "@/components/EmptyState";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { prompts } from "../assets/prompts";
 
 export default function feed() {
   const { height } = useWindowDimensions();
   const [toggle, setToggle] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [render, setRender] = useState(false);
-  const { data, rendering } = useData();
+  const [scrollLoading, setScrollLoading] = useState(false); // State for tracking scroll loading
+  const { data, addImages } = useData(); // Ensure `setData` is available to update data
   const { loading, setPrompt, prompt, generate } = useGenerate();
   const navigator = useNavigation();
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [lastOffset, setLastOffset] = useState(0);
 
-  useEffect(() => {
-    console.log("feed");
-  }, [render, rendering]);
+  const handleGenerateMore = async () => {
+    try {
+      setScrollLoading(true);
+
+      const randomEnvironment =
+        prompts.environments[
+          Math.floor(Math.random() * prompts.environments.length)
+        ];
+      const randomTheme =
+        prompts.themes[Math.floor(Math.random() * prompts.themes.length)];
+      const randomMood =
+        prompts.moods[Math.floor(Math.random() * prompts.moods.length)];
+      const newPrompt = `${prompt}, now set in ${randomEnvironment},that captures ${randomMood}, ${randomTheme}.`;
+      await generate(newPrompt, null, null);
+    } catch (error) {
+      console.error("Error generating new images:", error);
+    } finally {
+      setScrollLoading(false);
+    }
+  };
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const currentOffset = event.nativeEvent.contentOffset.y;
+
+    // Trigger image generation logic only when scrolling
+    if (!isScrolling && Math.abs(currentOffset - lastOffset) > 50) {
+      // Adjust threshold as needed
+      setIsScrolling(true);
+      setLastOffset(currentOffset); // Update lastOffset to current
+
+      // Call your generation logic
+      handleGenerateMore();
+
+      // Reset scrolling flag after a delay
+      setTimeout(() => {
+        setIsScrolling(false);
+      }, 1000); // Adjust timeout to match your needs
+    }
+  };
+
+  const handleEndReached = () => {
+    console.log("End of list reached");
+    // Additional logic for when user scrolls to the end
+  };
 
   return (
     <View style={styles.container}>
@@ -125,6 +172,14 @@ export default function feed() {
             />
           )}
           pagingEnabled
+          onScroll={handleScroll}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.1}
+          ListFooterComponent={
+            scrollLoading ? (
+              <ActivityIndicator size="large" color="#fff" />
+            ) : null
+          }
         />
       )}
     </View>

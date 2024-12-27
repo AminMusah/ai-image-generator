@@ -18,6 +18,6 @@ export const useData = create<DataStore>((set) => ({
   addImages: (type, data = []) =>
     set((state) => ({
       type,
-      data: [...data, ...state.data],
+      data: [...state.data, ...data],
     })),
 }));
