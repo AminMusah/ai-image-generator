@@ -28,20 +28,13 @@ export default function feed() {
   const [toggle, setToggle] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [render, setRender] = useState(false);
-  const [scrollLoading, setScrollLoading] = useState(false); // State for tracking scroll loading
-  const { data, addImages } = useData(); // Ensure `setData` is available to update data
-  const { loading, setPrompt, prompt, generate } = useGenerate();
+  const [scrollLoading, setScrollLoading] = useState(false);
+  const { data, addImages } = useData();
+  const { loading, setPrompt, prompt, generate, text } = useGenerate();
   const navigator = useNavigation();
   const [isScrolling, setIsScrolling] = useState(false);
   const [lastOffset, setLastOffset] = useState(0);
   const scrollViewRef = useRef<FlatList | null>(null);
-
-  useEffect(() => {
-    if (scrollViewRef.current) {
-      // Scroll to the bottom when the component mounts
-      scrollViewRef.current.scrollToEnd({ animated: true });
-    }
-  }, [data]); // Ensure it runs when data changes
 
   const handleGenerateMore = async () => {
     try {
@@ -55,32 +48,13 @@ export default function feed() {
         prompts.themes[Math.floor(Math.random() * prompts.themes.length)];
       const randomMood =
         prompts.moods[Math.floor(Math.random() * prompts.moods.length)];
-      const newPrompt = `${prompt} now set in ${randomEnvironment}, that captures ${randomMood}, ${randomTheme}.`;
-      await generate(newPrompt, null, null);
+      const newPrompt = `${text} now set in ${randomEnvironment}, that captures ${randomMood}, ${randomTheme}.`;
+      await generate(newPrompt, null, null, null);
     } catch (error) {
       console.error("Error generating new images:", error);
     } finally {
       setScrollLoading(false);
     }
-  };
-
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    // const currentOffset = event.nativeEvent.contentOffset.y;
-
-    // // Trigger image generation logic only when scrolling
-    // if (!isScrolling && Math.abs(currentOffset - lastOffset) > 50) {
-    //   // Adjust threshold as needed
-    //   setIsScrolling(true);
-    //   setLastOffset(currentOffset); // Update lastOffset to current
-
-    // Call your generation logic
-    handleGenerateMore();
-
-    // // Reset scrolling flag after a delay
-    // setTimeout(() => {
-    //   setIsScrolling(false);
-    // }, 1000); // Adjust timeout to match your needs
-    // }
   };
 
   const scrollToBottom = () => {
@@ -91,7 +65,7 @@ export default function feed() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [data]);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -148,7 +122,12 @@ export default function feed() {
               ) : (
                 <TouchableOpacity
                   onPress={async () => {
-                    await generate(prompt, setModalVisible, modalVisible);
+                    await generate(
+                      prompt,
+                      setModalVisible,
+                      modalVisible,
+                      scrollToBottom
+                    );
                   }}
                   style={{ position: "absolute", right: 10, bottom: "20%" }}
                 >
@@ -178,7 +157,7 @@ export default function feed() {
               height={height}
               modalVisible={modalVisible}
               setModalVisible={setModalVisible}
-              generate={(prompt) => generate(prompt, null, null)}
+              generate={(prompt) => generate(prompt, null, null, null)}
               setPrompt={setPrompt}
               prompt={prompt}
               render={render}
@@ -186,28 +165,13 @@ export default function feed() {
             />
           )}
           pagingEnabled
-          onScroll={handleScroll}
-          onEndReached={() => handleGenerateMore()}
-          scrollEventThrottle={250}
-          onEndReachedThreshold={0.1}
+          onEndReached={handleGenerateMore}
+          onEndReachedThreshold={0.5}
           ListFooterComponent={
-            scrollLoading ? (
-              <ActivityIndicator size="large" color="#fff" />
-            ) : null
+            loading ? <ActivityIndicator size="large" color="#fff" /> : null
           }
-          onContentSizeChange={() => {
-            if (scrollViewRef.current) {
-              scrollViewRef.current.scrollToEnd({ animated: true });
-            }
-          }}
         />
       )}
-
-      {scrollLoading ? (
-        <View style={{ zIndex: 300 }}>
-          <ActivityIndicator size="large" color="#fff" />
-        </View>
-      ) : null}
     </View>
   );
 }

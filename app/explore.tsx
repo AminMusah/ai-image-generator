@@ -5,6 +5,7 @@ import {
   Image,
   useWindowDimensions,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Stack, useNavigation } from "expo-router";
@@ -27,6 +28,26 @@ export default function explore() {
 
   const { data, rendering } = useData();
   const navigator = useNavigation();
+
+  const ImageGrids = ({
+    image,
+  }: {
+    image: { id: number; url: string; description: string };
+  }) => {
+    return (
+      <View style={styles.hompageImageContainer}>
+        <View style={[styles.hompageImageSubContainer]}>
+          <View style={styles.imageContainer}>
+            <Image
+              style={styles.image}
+              source={{ uri: image.url }}
+              resizeMode="cover"
+            />
+          </View>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -59,19 +80,7 @@ export default function explore() {
         <FlatList
           data={data}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <ImageGenerated
-              image={item}
-              height={height}
-              modalVisible={modalVisible}
-              setModalVisible={setModalVisible}
-              generate={() => {}}
-              setPrompt={() => {}}
-              prompt={""}
-              render={render}
-              setRender={setRender}
-            />
-          )}
+          renderItem={({ item }) => <ImageGrids image={item} />}
           pagingEnabled
         />
       )}
@@ -98,5 +107,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#a3a3a3",
     marginRight: 8,
+  },
+  hompageImageContainer: {
+    paddingTop: 20,
+  },
+  hompageImageSubContainer: {
+    flexDirection: "row",
+  },
+  imageContainer: {
+    flex: 1,
+    padding: 2,
+  },
+  image: {
+    width: "100%",
+    height: 180,
+    borderWidth: 1,
+    borderRadius: 30,
   },
 });
