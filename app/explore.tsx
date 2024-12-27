@@ -28,8 +28,6 @@ export default function explore() {
   const { data, rendering } = useData();
   const navigator = useNavigation();
 
-  console.log("hi", rendering);
-
   return (
     <View style={styles.container}>
       {data.length > 0 && (

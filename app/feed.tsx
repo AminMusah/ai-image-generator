@@ -12,7 +12,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Stack, useNavigation } from "expo-router";
 import { Entypo, Feather, Foundation, MaterialIcons } from "@expo/vector-icons";
 import { FlatList } from "react-native";
@@ -34,6 +34,14 @@ export default function feed() {
   const navigator = useNavigation();
   const [isScrolling, setIsScrolling] = useState(false);
   const [lastOffset, setLastOffset] = useState(0);
+  const scrollViewRef = useRef<FlatList | null>(null);
+
+  useEffect(() => {
+    if (scrollViewRef.current) {
+      // Scroll to the bottom when the component mounts
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
+  }, [data]); // Ensure it runs when data changes
 
   const handleGenerateMore = async () => {
     try {
@@ -47,7 +55,7 @@ export default function feed() {
         prompts.themes[Math.floor(Math.random() * prompts.themes.length)];
       const randomMood =
         prompts.moods[Math.floor(Math.random() * prompts.moods.length)];
-      const newPrompt = `${prompt}, now set in ${randomEnvironment},that captures ${randomMood}, ${randomTheme}.`;
+      const newPrompt = `${prompt} now set in ${randomEnvironment}, that captures ${randomMood}, ${randomTheme}.`;
       await generate(newPrompt, null, null);
     } catch (error) {
       console.error("Error generating new images:", error);
@@ -57,28 +65,33 @@ export default function feed() {
   };
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const currentOffset = event.nativeEvent.contentOffset.y;
+    // const currentOffset = event.nativeEvent.contentOffset.y;
 
-    // Trigger image generation logic only when scrolling
-    if (!isScrolling && Math.abs(currentOffset - lastOffset) > 50) {
-      // Adjust threshold as needed
-      setIsScrolling(true);
-      setLastOffset(currentOffset); // Update lastOffset to current
+    // // Trigger image generation logic only when scrolling
+    // if (!isScrolling && Math.abs(currentOffset - lastOffset) > 50) {
+    //   // Adjust threshold as needed
+    //   setIsScrolling(true);
+    //   setLastOffset(currentOffset); // Update lastOffset to current
 
-      // Call your generation logic
-      handleGenerateMore();
+    // Call your generation logic
+    handleGenerateMore();
 
-      // Reset scrolling flag after a delay
-      setTimeout(() => {
-        setIsScrolling(false);
-      }, 1000); // Adjust timeout to match your needs
+    // // Reset scrolling flag after a delay
+    // setTimeout(() => {
+    //   setIsScrolling(false);
+    // }, 1000); // Adjust timeout to match your needs
+    // }
+  };
+
+  const scrollToBottom = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
     }
   };
 
-  const handleEndReached = () => {
-    console.log("End of list reached");
-    // Additional logic for when user scrolls to the end
-  };
+  useEffect(() => {
+    scrollToBottom();
+  }, [data]);
 
   return (
     <View style={styles.container}>
@@ -156,6 +169,7 @@ export default function feed() {
         />
       ) : (
         <FlatList
+          ref={scrollViewRef}
           data={data}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
@@ -173,15 +187,27 @@ export default function feed() {
           )}
           pagingEnabled
           onScroll={handleScroll}
-          onEndReached={handleEndReached}
+          onEndReached={() => handleGenerateMore()}
+          scrollEventThrottle={250}
           onEndReachedThreshold={0.1}
           ListFooterComponent={
             scrollLoading ? (
               <ActivityIndicator size="large" color="#fff" />
             ) : null
           }
+          onContentSizeChange={() => {
+            if (scrollViewRef.current) {
+              scrollViewRef.current.scrollToEnd({ animated: true });
+            }
+          }}
         />
       )}
+
+      {scrollLoading ? (
+        <View style={{ zIndex: 300 }}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      ) : null}
     </View>
   );
 }
