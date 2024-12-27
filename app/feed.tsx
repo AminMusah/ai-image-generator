@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   expand: {
     position: "absolute",
     top: 50,
-    right: 50,
+    right: 70,
     zIndex: 300,
     justifyContent: "space-between",
     width: "80%",
