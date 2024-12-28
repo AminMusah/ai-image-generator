@@ -30,7 +30,7 @@ export default function feed() {
   const [render, setRender] = useState(false);
   const [scrollLoading, setScrollLoading] = useState(false);
   const { data, addImages } = useData();
-  const { loading, setPrompt, prompt, generate, text } = useGenerate();
+  const { loading, setPrompt, prompt, generate, word } = useGenerate();
   const navigator = useNavigation();
   const [isScrolling, setIsScrolling] = useState(false);
   const [lastOffset, setLastOffset] = useState(0);
@@ -48,8 +48,8 @@ export default function feed() {
         prompts.themes[Math.floor(Math.random() * prompts.themes.length)];
       const randomMood =
         prompts.moods[Math.floor(Math.random() * prompts.moods.length)];
-      const newPrompt = `${text} now set in ${randomEnvironment}, that captures ${randomMood}, ${randomTheme}.`;
-      await generate(newPrompt, null, null, null);
+      const newPrompt = `${word} now set in ${randomEnvironment}, that captures ${randomMood}, ${randomTheme}.`;
+      await generate(newPrompt, null, null);
     } catch (error) {
       console.error("Error generating new images:", error);
     } finally {
@@ -122,12 +122,7 @@ export default function feed() {
               ) : (
                 <TouchableOpacity
                   onPress={async () => {
-                    await generate(
-                      prompt,
-                      setModalVisible,
-                      modalVisible,
-                      scrollToBottom
-                    );
+                    await generate(prompt, setModalVisible, modalVisible);
                   }}
                   style={{ position: "absolute", right: 10, bottom: "20%" }}
                 >
@@ -157,7 +152,7 @@ export default function feed() {
               height={height}
               modalVisible={modalVisible}
               setModalVisible={setModalVisible}
-              generate={(prompt) => generate(prompt, null, null, null)}
+              generate={(prompt) => generate(prompt, null, null)}
               setPrompt={setPrompt}
               prompt={prompt}
               render={render}

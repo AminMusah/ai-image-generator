@@ -7,15 +7,14 @@ export const useGenerate = () => {
     { url: string; prompt: string; fav: boolean }[]
   >([]);
   const [prompt, setPrompt] = useState("");
-  const [text, setText] = useState("");
+  const [word, setWord] = useState("");
   const [loading, setLoading] = useState(false);
   const { addImages } = useData();
 
   const generate = async (
     text: string,
     setModalVisible: null | React.Dispatch<React.SetStateAction<boolean>>,
-    modalVisible: boolean | null,
-    scrollToBottom: any | null
+    modalVisible: boolean | null
   ) => {
     console.log(text, "text");
     setLoading(true);
@@ -34,14 +33,13 @@ export const useGenerate = () => {
           prompt: text || prompt,
           fav: false,
         };
-        setText(prompt);
+        setWord(text);
         setImages((prevImages) => [...prevImages, newImage]);
         addImages("addImages", [newImage]);
         setPrompt("");
         if (setModalVisible) {
           setModalVisible(!modalVisible);
         }
-        scrollToBottom();
       })
       .catch((err) => console.log(err))
       .finally(() => {
@@ -49,5 +47,5 @@ export const useGenerate = () => {
       });
   };
 
-  return { loading, images, prompt, generate, setPrompt, text };
+  return { loading, images, prompt, generate, setPrompt, word };
 };

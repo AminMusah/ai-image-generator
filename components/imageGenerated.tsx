@@ -23,6 +23,7 @@ import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import * as MediaLibrary from "expo-media-library";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { usePathname } from "expo-router";
 
 interface ImageGeneratedProps {
   prompt: string;
@@ -55,6 +56,8 @@ export default function ImageGenerated({
   setRender,
 }: ImageGeneratedProps) {
   const { onRender, rendering } = useData();
+  const pathname = usePathname();
+  const [favorites, setFavorites] = useState<number[]>([]);
 
   const requestPermission = async () => {
     const { status, canAskAgain, expires, granted } =
@@ -129,85 +132,52 @@ export default function ImageGenerated({
     }
   };
 
-  const saveImageToStorage = async (image: ImageProps) => {
+  const FAVORITES_KEY = "favorites";
+
+  const getFavorites = async () => {
     try {
-      // Retrieve the current images from AsyncStorage
-      const jsonValue = await AsyncStorage.getItem("@images");
-      const currentImages = jsonValue != null ? JSON.parse(jsonValue) : [];
-
-      // Check if the image already exists
-      const imageIndex = currentImages.findIndex(
-        (img: ImageProps) => img.id === image.id
-      );
-
-      if (imageIndex !== -1) {
-        // If it exists, toggle the fav property
-        const existingImage = currentImages[imageIndex];
-        existingImage.fav = !existingImage.fav; // Toggle fav
-        currentImages[imageIndex] = existingImage; // Update the existing image
-        console.log("Image updated in storage with toggled fav.");
-      } else {
-        // If it doesn't exist, add the new image with fav set to true
-        const newImage = { ...image, fav: true }; // Set fav to true for new images
-        currentImages.push(newImage);
-        console.log("Image added to storage.");
-      }
-
-      // Convert the updated array to a JSON string
-      const updatedJsonValue = JSON.stringify(currentImages);
-
-      // Save the updated JSON string to AsyncStorage
-      await AsyncStorage.setItem("@images", updatedJsonValue);
-      console.log("Images saved successfully");
+      const jsonValue = await AsyncStorage.getItem(FAVORITES_KEY);
+      return jsonValue != null ? JSON.parse(jsonValue) : [];
     } catch (error) {
-      console.error("Error saving image:", error);
-    }
-  };
-
-  const getImagesFromStorage = async () => {
-    try {
-      // Retrieve the JSON string from AsyncStorage
-      const jsonValue = await AsyncStorage.getItem("@images");
-      console.log(" images:", jsonValue);
-
-      // Parse the JSON string back into an array
-      const images = jsonValue !== null ? JSON.parse(jsonValue) : [];
-      console.log("Retrieved images:", images);
-      return images;
-    } catch (error) {
-      console.error("Error retrieving images:", error);
+      console.error("Error fetching favorites:", error);
       return [];
     }
   };
 
-  const removeImageFromStorage = async (imageId: any) => {
+  const saveFavorites = async (favorites: any) => {
     try {
-      // Retrieve the current images from AsyncStorage
-      const jsonValue = await AsyncStorage.getItem("@images");
-      const currentImages = jsonValue !== null ? JSON.parse(jsonValue) : [];
-
-      console.log("Current Images:", currentImages);
-
-      // Filter out the image with the matching id
-      const updatedImages = currentImages.filter(
-        (image: any) => image.id !== imageId
-      );
-
-      console.log("Updated Images:", updatedImages);
-
-      // Save the updated array back to AsyncStorage
-      const updatedJsonValue = JSON.stringify(updatedImages);
-      await AsyncStorage.setItem("@images", updatedJsonValue);
-
-      console.log(`Image with ID ${imageId} removed successfully`);
+      const jsonValue = JSON.stringify(favorites);
+      await AsyncStorage.setItem(FAVORITES_KEY, jsonValue);
     } catch (error) {
-      console.error("Error removing image:", error);
+      console.error("Error saving favorites:", error);
     }
   };
 
   useEffect(() => {
-    getImagesFromStorage();
+    const loadFavorites = async () => {
+      const storedFavorites = await getFavorites();
+      setFavorites(storedFavorites);
+    };
+    loadFavorites();
   }, [render, rendering]);
+
+  const toggleFavorite = async (imageId: any) => {
+    const isFavorited = favorites.includes(imageId);
+    let updatedFavorites;
+    if (isFavorited) {
+      updatedFavorites = favorites.filter((id) => id !== imageId);
+    } else {
+      updatedFavorites = [...favorites, imageId];
+    }
+    setFavorites(updatedFavorites);
+    await saveFavorites(updatedFavorites);
+  };
+
+  const removeFavorite = async (imageId: any) => {
+    const updatedFavorites = favorites.filter((id) => id !== imageId);
+    setFavorites(updatedFavorites);
+    await saveFavorites(updatedFavorites);
+  };
 
   return (
     <View
@@ -226,35 +196,37 @@ export default function ImageGenerated({
         resizeMode={"cover"}
       />
       <View style={styles.actionsContainer}>
-        <TouchableOpacity
-          onPress={async () => {
-            const imagesInStorage = await getImagesFromStorage();
-            const imageExists = imagesInStorage.some(
-              (img: ImageProps) => img.id === image.id
-            );
-
-            if (imageExists) {
-              const updatedImage = { ...image, fav: true };
-              console.log(updatedImage, "up");
-              console.log(updatedImage, "up");
-              saveImageToStorage(updatedImage);
-              // removeImageFromStorage(updatedImage.id);
-            } else {
-              const updatedImage = { ...image, fav: false };
-              console.log(updatedImage, "update");
-              saveImageToStorage(updatedImage);
-            }
-            setRender(!render);
-            onRender({ rendering: render });
-          }}
-          style={styles.action}
-        >
-          <FontAwesome
-            name="heart"
-            size={34}
-            color={image.fav ? "red" : "white"}
-          />
-        </TouchableOpacity>
+        {pathname === "/favorite" ? (
+          <TouchableOpacity
+            style={styles.action}
+            onPress={() => {
+              removeFavorite(image.id);
+              setRender(!render);
+              onRender({ rendering: render });
+            }}
+          >
+            <FontAwesome
+              name="heart"
+              size={34}
+              color={favorites.includes(image.id) ? "red" : "white"}
+            />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={async () => {
+              toggleFavorite(image.id);
+              setRender(!render);
+              onRender({ rendering: render });
+            }}
+            style={styles.action}
+          >
+            <FontAwesome
+              name="heart"
+              size={34}
+              color={favorites.includes(image.id) ? "red" : "white"}
+            />
+          </TouchableOpacity>
+        )}
         <TouchableOpacity onPress={() => downloadImage(image.url)}>
           <Entypo
             name="download"

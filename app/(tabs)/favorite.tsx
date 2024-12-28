@@ -15,48 +15,38 @@ import { useData } from "@/hooks/useData";
 import EmptyState from "@/components/EmptyState";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-interface ImageProps {
-  id: number;
-  url: string;
-  prompt: string;
-  fav: boolean;
-}
-
 export default function favorite() {
   const { height } = useWindowDimensions();
   const [toggle, setToggle] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState<number[]>([]);
   const [render, setRender] = useState(false);
   const navigator = useNavigation();
-  const { rendering } = useData();
+  const { rendering, data } = useData();
 
-  const getImagesFromStorage = async () => {
+  const FAVORITES_KEY = "favorites";
+
+  const getFavorites = async () => {
     try {
-      // Retrieve the JSON string from AsyncStorage
-      const jsonValue = await AsyncStorage.getItem("@images");
-
-      // Parse the JSON string back into an array
-      const images = jsonValue != null ? JSON.parse(jsonValue) : [];
-      console.log("Retrieved images:", images);
-
-      const updatedImages = images.filter((image: ImageProps) => image.fav);
-
-      setFavorites(updatedImages); // Filter images with 'fav = true'
-      // return images;
+      const jsonValue = await AsyncStorage.getItem(FAVORITES_KEY);
+      return jsonValue != null ? JSON.parse(jsonValue) : [];
     } catch (error) {
-      console.error("Error retrieving images:", error);
+      console.error("Error fetching favorites:", error);
       return [];
     }
   };
 
-  console.log(rendering, "fa");
-
   useEffect(() => {
-    getImagesFromStorage();
+    const loadFavorites = async () => {
+      const storedFavorites = await getFavorites();
+      setFavorites(storedFavorites);
+    };
+    loadFavorites();
   }, [render, rendering]);
 
-  console.log(favorites, "hi", render, rendering);
+  const favoriteImages = data.filter((image: any) =>
+    favorites.includes(image.id)
+  );
 
   return (
     <View style={styles.container}>
@@ -76,7 +66,7 @@ export default function favorite() {
           </View>
         </>
       )}
-      {favorites.length === 0 ? (
+      {favoriteImages.length === 0 ? (
         <EmptyState
           title="Empty"
           subtitle="Your favorite images are waiting"
@@ -87,7 +77,7 @@ export default function favorite() {
         />
       ) : (
         <FlatList
-          data={favorites}
+          data={favoriteImages}
           renderItem={({ item }) => (
             <ImageGenerated
               image={item}
