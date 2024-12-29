@@ -4,7 +4,12 @@
     "slug": "promptpix",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/promptpix.png",
+    "splash": {
+      "image": "./assets/images/adaptive-icon.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#fff"
+    },
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -19,7 +24,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#fff"
       },
       "package": "com.aminmusah.imagegenerator",
       "permissions": [
@@ -43,7 +48,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#000"
         }
       ],
       "expo-font",
