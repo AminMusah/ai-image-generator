@@ -58,6 +58,7 @@ export default function ImageGenerated({
   const { onRender, rendering } = useData();
   const pathname = usePathname();
   const [favorites, setFavorites] = useState<number[]>([]);
+  const [promptModal, setPromptModal] = useState(false);
 
   const requestPermission = async () => {
     const { status, canAskAgain, expires, granted } =
@@ -196,6 +197,9 @@ export default function ImageGenerated({
         resizeMode={"cover"}
       />
       <View style={styles.actionsContainer}>
+        <TouchableOpacity onPress={() => setPromptModal(!promptModal)}>
+          <Entypo name="eye" size={34} color="white" style={styles.action} />
+        </TouchableOpacity>
         {pathname === "/favorite" ? (
           <TouchableOpacity
             style={styles.action}
@@ -248,7 +252,48 @@ export default function ImageGenerated({
           />
         </TouchableOpacity>
       </View>
-      <Text style={styles.prompt}>{image.prompt}</Text>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={promptModal}
+        onRequestClose={() => {
+          setPromptModal(!promptModal);
+        }}
+      >
+        <Pressable
+          style={styles.modalView}
+          onPress={() => setPromptModal(!promptModal)}
+        >
+          <View style={styles.prompt}>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                paddingBottom: 10,
+              }}
+            >
+              <View />
+              <Text
+                style={{
+                  fontWeight: 600,
+                  fontSize: 25,
+                }}
+              >
+                Caption
+              </Text>
+
+              <TouchableOpacity
+                onPress={() => setPromptModal(!promptModal)}
+                style={{}}
+              >
+                <Feather name="x" size={24} color="#000" style={{}} />
+              </TouchableOpacity>
+            </View>
+
+            <Text>{image.prompt}</Text>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -278,7 +323,18 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: "center",
   },
-  prompt: { color: "#fff", fontWeight: 900, marginTop: 10 },
+  prompt: {
+    color: "#000",
+    fontWeight: 900,
+    backgroundColor: "#fff",
+    width: "90%",
+    borderRadius: 20,
+    textAlign: "center",
+    margin: "auto",
+    paddingTop: 10,
+    paddingHorizontal: 15,
+    paddingBottom: 20,
+  },
   expand: {
     position: "absolute",
     top: 40,
@@ -293,5 +349,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#a3a3a3",
     marginRight: 8,
+  },
+  promptButton: {
+    borderRadius: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#5F5AA2",
+    marginRight: 8,
+    paddingVertical: 20,
+    paddingHorizontal: 60,
+  },
+  modalView: {
+    width: "100%",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

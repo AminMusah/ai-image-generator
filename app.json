@@ -7,8 +7,8 @@
     "icon": "./assets/images/promptpix.png",
     "splash": {
       "image": "./assets/images/adaptive-icon.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#fff"
+      "resizeMode": "contain",
+      "backgroundColor": "#000"
     },
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
@@ -23,7 +23,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/adaptive-icon.pngg",
         "backgroundColor": "#fff"
       },
       "package": "com.aminmusah.imagegenerator",
@@ -45,7 +45,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/adaptive-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#000"
