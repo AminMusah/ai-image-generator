@@ -21,10 +21,11 @@ export default function HomeScreen() {
       <Text style={styles.heroText}>Generate images</Text>
       <View style={styles.subContainer}>
         <View style={styles.wrapper}>
-          <Link href={"/feed"} style={{}}>
+          <Link href={"/feed"} style={styles.wrapperText}>
             <Text style={styles.wrapperText}>Provide a phrase</Text>
           </Link>
-          <Text
+          <Link
+            href={"/favorite"}
             style={[
               styles.wrapperText,
               {
@@ -34,8 +35,19 @@ export default function HomeScreen() {
               },
             ]}
           >
-            Nice shot!
-          </Text>
+            <Text
+              style={[
+                styles.wrapperText,
+                {
+                  backgroundColor: "#5a5d60",
+                  color: "#fff",
+                  borderColor: "#5a5d60",
+                },
+              ]}
+            >
+              Nice shot!
+            </Text>{" "}
+          </Link>
         </View>
         {/* <View style={styles.inputContainer}>
           <TextInput
