@@ -69,30 +69,27 @@ export default function feed() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.expand}>
+        <TouchableOpacity
+          onPress={async () => {
+            await AsyncStorage.removeItem("@images");
+            navigator.goBack();
+            setRender(!render);
+          }}
+          style={styles.expandIcon}
+        >
+          <Feather name="chevron-left" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
       {data.length > 0 && (
-        <>
-          <View style={styles.expand}>
-            <TouchableOpacity
-              onPress={async () => {
-                await AsyncStorage.removeItem("@images");
-                navigator.goBack();
-                setRender(!render);
-              }}
-              style={styles.expandIcon}
-            >
-              <Feather name="chevron-left" size={24} color="#fff" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={[styles.expand, { left: 350 }]}>
-            <TouchableOpacity
-              onPress={() => setModalVisible(!modalVisible)}
-              style={[styles.expandIcon]}
-            >
-              <MaterialIcons name="token" size={24} color="#fff" />
-            </TouchableOpacity>
-          </View>
-        </>
+        <View style={[styles.expand, { left: 350 }]}>
+          <TouchableOpacity
+            onPress={() => setModalVisible(!modalVisible)}
+            style={[styles.expandIcon]}
+          >
+            <MaterialIcons name="token" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
       )}
 
       <Modal

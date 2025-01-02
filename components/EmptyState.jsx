@@ -36,6 +36,10 @@ const EmptyState = ({
         onPress={() => {
           if (buttonText === "Generate") {
             setModalVisible(!modalVisible);
+          } else if (buttonText === "Go back") {
+            navigation.goBack();
+          } else if (buttonText === "Go to feed") {
+            router.push("/feed");
           } else if (buttonLink.split("")[0] === "/") {
             router.push("/feed");
           } else {

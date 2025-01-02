@@ -21,7 +21,9 @@ export default function HomeScreen() {
       <Text style={styles.heroText}>Generate images</Text>
       <View style={styles.subContainer}>
         <View style={styles.wrapper}>
-          <Text style={styles.wrapperText}>Provide a phrase</Text>
+          <Link href={"/feed"} style={{}}>
+            <Text style={styles.wrapperText}>Provide a phrase</Text>
+          </Link>
           <Text
             style={[
               styles.wrapperText,
@@ -35,7 +37,7 @@ export default function HomeScreen() {
             Nice shot!
           </Text>
         </View>
-        <View style={styles.inputContainer}>
+        {/* <View style={styles.inputContainer}>
           <TextInput
             style={styles.textInput}
             value={prompt}
@@ -48,7 +50,7 @@ export default function HomeScreen() {
           >
             <MaterialIcons name="token" size={24} color="black" />
           </TouchableOpacity>
-        </View>
+        </View> */}
         <View style={styles.hompageImageContainer}>
           <View style={[styles.hompageImageSubContainer]}>
             {loading ? (
