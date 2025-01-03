@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "promptpix",
-    "slug": "promptpix",
+    "slug": "image-generator",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/promptpix.png",

@@ -106,7 +106,6 @@ export default function ImageGenerated({
       const fileInfo = await FileSystem.getInfoAsync(localUri);
       if (!fileInfo.exists) {
         console.error("File does not exist:", localUri);
-        Alert.alert("Error", "File does not exist.");
         return;
       }
 
@@ -115,13 +114,17 @@ export default function ImageGenerated({
       console.log("Saved asset URI:", asset.uri);
     } catch (error) {
       console.error("Error saving image to gallery:", error);
-      Alert.alert("Error", "Failed to save the image to gallery.");
     }
   };
 
   const shareImage = async (url: string) => {
     try {
-      await Sharing.shareAsync(url, {
+      // Download the image to a local file
+      const fileUri = `${FileSystem.documentDirectory}shared-image.jpg`;
+      const { uri } = await FileSystem.downloadAsync(url, fileUri);
+
+      // Share the downloaded image
+      await Sharing.shareAsync(uri, {
         dialogTitle: "Save/Share Image",
         mimeType: "image/jpeg",
         UTI: "public.jpeg",
@@ -129,7 +132,6 @@ export default function ImageGenerated({
       console.log("Sharing complete!");
     } catch (error) {
       console.error("Error sharing image:", error);
-      Alert.alert("Error", "Failed to share the image.");
     }
   };
 
