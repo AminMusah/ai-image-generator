@@ -11,6 +11,7 @@ import {
   TextInput,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  Platform,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { Stack, useNavigation } from "expo-router";
@@ -76,13 +77,15 @@ export default function feed() {
             navigator.goBack();
             setRender(!render);
           }}
-          style={styles.expandIcon}
+          style={[styles.expandIcon, { left: Platform.OS == "ios" ? 0 : 10 }]}
         >
           <Feather name="chevron-left" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
       {data.length > 0 && (
-        <View style={[styles.expand, { left: 350 }]}>
+        <View
+          style={[styles.expand, { left: Platform.OS === "ios" ? 350 : 300 }]}
+        >
           <TouchableOpacity
             onPress={() => setModalVisible(!modalVisible)}
             style={[styles.expandIcon]}
