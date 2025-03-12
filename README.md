@@ -1,3 +1,11 @@
+
+## Architectural diagram
+
+![promptpix-architectural-diagram](https://github.com/user-attachments/assets/0373db1f-2d88-45d9-abc1-676457af2a21)
+
+
+
+
 # Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
